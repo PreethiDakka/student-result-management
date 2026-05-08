@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .navbar {
+            background: #2c3e50;
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 { color: white; font-size: 20px; }
+        .navbar a {
+            color: #aaa;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+        .navbar a:hover { color: white; }
+        .container { padding: 30px; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+        .student-info {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .info-item label {
+            font-size: 12px;
+            color: #888;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .info-item span {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+        h2 { color: #333; margin-bottom: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #444;
+        }
+        tr:hover { background: #f9f9f9; }
+        .pass { color: #27ae60; font-weight: bold; }
+        .fail { color: #e74c3c; font-weight: bold; }
+        .summary {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .summary-box {
+            flex: 1;
+            min-width: 140px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-box label {
+            font-size: 12px;
+            color: #888;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .summary-box span {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .empty { text-align: center; color: #aaa; padding: 20px; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <h1>SRMS — Student Portal</h1>
+    <div>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" style="background:none; border:none; color:#aaa; cursor:pointer; font-size:14px;">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Student Info -->
+    <div class="card" th:if="${student}">
+        <h2>My Profile</h2>
+        <div class="student-info">
+            <div class="info-item">
+                <label>Name</label>
+                <span th:text="${student.name}"></span>
+            </div>
+            <div class="info-item">
+                <label>Roll Number</label>
+                <span th:text="${student.rollNumber}"></span>
+            </div>
+            <div class="info-item">
+                <label>Email</label>
+                <span th:text="${student.email}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <h2>My Results</h2>
+        <table th:if="${results != null and !results.empty}">
+            <tr>
+                <th>#</th>
+                <th>Subject</th>
+                <th>Max Marks</th>
+                <th>Marks Obtained</th>
+                <th>Grade</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="result, i : ${results}">
+                <td th:text="${i.count}"></td>
+                <td th:text="${result.subject.name}"></td>
+                <td th:text="${result.subject.maxMarks}"></td>
+                <td th:text="${result.marksObtained}"></td>
+                <td th:text="${result.grade}"></td>
+                <td>
+                        <span th:class="${result.status == 'PASS' ? 'pass' : 'fail'}"
+                              th:text="${result.status}"></span>
+                </td>
+            </tr>
+        </table>
+        <p class="empty"
+           th:if="${results == null or results.empty}">
+            No results found yet.
+        </p>
+
+        <!-- Summary -->
+        <div class="summary" th:if="${results != null and !results.empty}">
+            <div class="summary-box">
+                <label>Total Marks</label>
+                <span th:text="${total + ' / ' + maxTotal}"></span>
+            </div>
+            <div class="summary-box">
+                <label>Percentage</label>
+                <span th:text="${percentage + '%'}"></span>
+            </div>
+            <div class="summary-box">
+                <label>Subjects</label>
+                <span th:text="${results.size()}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
